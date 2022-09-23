@@ -35,7 +35,7 @@ namespace voyado_search_test_backend.Controllers
             for (int i = 0; i < words.Length; i++)
             {
                 totalResults += await GoogleWebSearch(words[i]);
-                //totalResults += await BingWebSearch(words[i]);
+                totalResults += await BingWebSearch(words[i]);
 
                 //Adds a 1 second delay after each Bing search (unless its the last search) since free plan only allows 1 each second.
                 if (i < words.Length -1)
@@ -56,13 +56,10 @@ namespace voyado_search_test_backend.Controllers
             string uriBase = "https://www.googleapis.com/customsearch/v1?key=" + googleApiKey + "&cx=" + googleCustomSearchId + "&q=" + searchQuery;
 
             var request = WebRequest.Create(uriBase);
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            HttpWebResponse response = (HttpWebResponse)request.GetResponseAsync().Result;
 
-            Stream dataStream = response.GetResponseStream();
-            StreamReader reader = new StreamReader(dataStream);
-            string responseString = reader.ReadToEnd();
-
-            dynamic jsonData = JsonConvert.DeserializeObject(responseString);
+            string json = new StreamReader(response.GetResponseStream()).ReadToEnd();
+            dynamic jsonData = JsonConvert.DeserializeObject(json);
 
             var searchResults = (Int64)jsonData.SelectToken("searchInformation.totalResults");
             return searchResults;
@@ -80,8 +77,8 @@ namespace voyado_search_test_backend.Controllers
             request.Headers["Ocp-Apim-Subscription-Key"] = bingAccessKey;
 
             HttpWebResponse response = (HttpWebResponse)request.GetResponseAsync().Result;
-            string json = new StreamReader(response.GetResponseStream()).ReadToEnd();
 
+            string json = new StreamReader(response.GetResponseStream()).ReadToEnd();
             dynamic jsonData = JsonConvert.DeserializeObject(json);
             var searchResults = (Int64)jsonData.SelectToken("webPages.totalEstimatedMatches");
             return searchResults;
