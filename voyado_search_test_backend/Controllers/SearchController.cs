@@ -1,13 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System;
 using System.Net;
-using System.Runtime.Intrinsics.Arm;
-using System;
-using System.Text;
-using System.Net;
-using System.IO;
-using System.Collections.Generic;
 
 namespace voyado_search_test_backend.Controllers
 {
@@ -80,6 +73,7 @@ namespace voyado_search_test_backend.Controllers
 
             string json = new StreamReader(response.GetResponseStream()).ReadToEnd();
             dynamic jsonData = JsonConvert.DeserializeObject(json);
+
             var searchResults = (Int64)jsonData.SelectToken("webPages.totalEstimatedMatches");
             return searchResults;
         }
