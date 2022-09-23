@@ -12,6 +12,7 @@ export class AppComponent {
   public forecasts?: WeatherForecast[];
   public searchCount?: SearchResultCount;
   public searchServiceResult?: string;
+  public searchResult?: string;
   constructor(/*http: HttpClient*/ private searchResultService: SearchResultCountService) {
     //this.searchResultService.getData().subscribe(data => {
     //  console.warn(data)
@@ -24,11 +25,10 @@ export class AppComponent {
     //}, error => console.error(error));
   }
   //Kanske göra till int
-  searchResult = '';
+
   getValue(val: string) {
     //let result = this.searchResultService.getData(val);
     //console.warn(result)
-    this.searchResult = val;
     this.searchResultService.getData(val).subscribe(data => {
       this.searchResult = data.toString();
     })
