@@ -17,24 +17,31 @@ namespace voyado_search_test_backend.Controllers
     {
         Int64 totalResults = 0;
 
-        //Google
+        //Google credentials
         string googleCustomSearchId = "76e758613b929406e";
-        string apiKey = "AIzaSyC9Q8jZYaOn8Yjsj8JjaC2ofpFLCtr9WpM";
+        string googleApiKey = "AIzaSyC9Q8jZYaOn8Yjsj8JjaC2ofpFLCtr9WpM";
 
 
-        //Bing
+        //Bing credentials
         string bingCustomSearchId = "135bc5e2-6412-4149-ae9b-7d2859feef93&mkt=sv-SE";
         string bingAccessKey = "69986a31efd147d58de1d2b2a69e7fa5";
 
         [Route("getResultCount")]
         [HttpGet] 
-        public Int64 getResultCount(string searchParam)
+        public async Task<Int64> getResultCount(string searchParam)
         {
             string[] words = searchParam.Split(' ');
-            foreach (var word in words)
+
+            for (int i = 0; i < words.Length; i++)
             {
-                GoogleWebSearch(word);
-                BingWebSearch(word);
+                totalResults += await GoogleWebSearch(words[i]);
+                //totalResults += await BingWebSearch(words[i]);
+
+                //Adds a 1 second delay after each Bing search (unless its the last search) since free plan only allows 1 each second.
+                if (i < words.Length -1)
+                {
+                    Thread.Sleep(1000);
+                }
             }
 
             return totalResults;
@@ -42,42 +49,42 @@ namespace voyado_search_test_backend.Controllers
 
 
         /// <summary>
-        /// Makes a request to the Google Search API and returns the total searches per word
+        /// Makes a request to the Google Search API and returns the total searches for that word
         /// </summary>
-        private Int64 GoogleWebSearch(string searchQuery)
+        private async Task<Int64> GoogleWebSearch(string searchQuery)
         {
-            string uriBase = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + googleCustomSearchId + "&q=" + searchQuery;
+            string uriBase = "https://www.googleapis.com/customsearch/v1?key=" + googleApiKey + "&cx=" + googleCustomSearchId + "&q=" + searchQuery;
+
             var request = WebRequest.Create(uriBase);
-            request.UseDefaultCredentials = true;
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
             Stream dataStream = response.GetResponseStream();
             StreamReader reader = new StreamReader(dataStream);
             string responseString = reader.ReadToEnd();
+
             dynamic jsonData = JsonConvert.DeserializeObject(responseString);
-            totalResults += (Int64)jsonData.SelectToken("searchInformation.totalResults");
-            return totalResults;
+
+            var searchResults = (Int64)jsonData.SelectToken("searchInformation.totalResults");
+            return searchResults;
         }
 
         /// <summary>
-        /// Makes a request to the Bing Web Search API and returns the total searches per word
+        /// Makes a request to the Bing Web Search API and returns the total for that word
         /// </summary>
-        private Int64 BingWebSearch(string searchQuery)
+        private async Task<Int64> BingWebSearch(string searchQuery)
         {
-            string uriBase = "https://api.bing.microsoft.com/v7.0/custom/search?q=" + searchQuery + "&customconfig="+ bingCustomSearchId;
-            
-            // Construct the search request URI.
+            string uriBase = "https://api.bing.microsoft.com/v7.0/custom/search?q=" + searchQuery + "&customconfig=" + bingCustomSearchId;
             var uriQuery = uriBase + "?q=" + Uri.EscapeDataString(searchQuery);
 
-            // Perform request and get a response.
             WebRequest request = HttpWebRequest.Create(uriQuery);
             request.Headers["Ocp-Apim-Subscription-Key"] = bingAccessKey;
+
             HttpWebResponse response = (HttpWebResponse)request.GetResponseAsync().Result;
             string json = new StreamReader(response.GetResponseStream()).ReadToEnd();
 
             dynamic jsonData = JsonConvert.DeserializeObject(json);
-            totalResults += (Int64)jsonData.SelectToken("webPages.totalEstimatedMatches");
-
-            return totalResults;
+            var searchResults = (Int64)jsonData.SelectToken("webPages.totalEstimatedMatches");
+            return searchResults;
         }
     }
 }

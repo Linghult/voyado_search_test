@@ -1,0 +1,41 @@
+#input {
+  height: 145px;
+  width: 800px;
+  font-size: 45pt;
+}
+#searchButton {
+  height: 150px;
+  width: 350px;
+  font-size: 45px;
+  background-color: #79AC34;
+  border: 1;
+}
+div.search {
+  display: flex;
+  color: #43567B;
+  color: #57423E;
+}
+.result {
+  display: flex;
+  align-items: center;
+  font-size: 45px;
+}
+.voyado{
+    display:flex;
+    justify-content: center;
+    margin-bottom: 5vh;
+}
+.container {
+  font-family: Arial;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  top: 0;
+}
+
+

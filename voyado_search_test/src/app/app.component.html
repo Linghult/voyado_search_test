@@ -1,23 +1,15 @@
-<table *ngIf="forecasts">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Temp. (C)</th>
-            <th>Temp. (F)</th>
-            <th>Summary</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr *ngFor="let forecast of forecasts">
-            <td>{{ forecast.date }}</td>
-            <td>{{ forecast.temperatureC }}</td>
-            <td>{{ forecast.temperatureF }}</td>
-            <td>{{ forecast.summary }}</td>
-        </tr>
-    </tbody>
-</table>
 
-
-<input type="text" #box placholder ="Search whatever" name="search" />
-<button (click)="getValue(box.value)">Search</button>
-<p>Search Results: {{searchResult}}</p>
+<div class="container">
+  <div class="content">
+    <div class="voyado">
+      <img src="https://i.imgur.com/tbnM9Av.png">
+    </div>
+    <div class="search">
+      <input type="text" (keyup.enter)="getValue(inputBox.value)" submit="searchButton "id="input" #inputBox name="search" />
+      <button type=submit  id="searchButton" (click)="getValue(inputBox.value)">Search</button>
+    </div>
+    <div class="result">
+      <p>Search Results: {{searchResult}}</p>
+    </div>
+  </div>
+</div>

@@ -7,8 +7,8 @@ import {HttpClient} from '@angular/common/http'
 export class SearchResultCountService {
 
   constructor(private http: HttpClient) { }
-  getData(value: string) {
-    let url = 'https://localhost:7247/Search/getResultCount?searchParam='.concat(value);
+  getData(searchQuery: string) {
+    let url = 'https://localhost:7247/Search/getResultCount?searchParam='.concat(searchQuery);
     let result = this.http.get(url);
     return result;
   }

@@ -9,41 +9,17 @@ import { SearchResultCountService } from './search-result-count.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  public forecasts?: WeatherForecast[];
-  public searchCount?: SearchResultCount;
-  public searchServiceResult?: string;
   public searchResult?: string;
-  constructor(/*http: HttpClient*/ private searchResultService: SearchResultCountService) {
-    //this.searchResultService.getData().subscribe(data => {
-    //  console.warn(data)
-    //})
-    //http.get<SearchResultCount>('/SearchResultCount').subscribe(result => {
-    //  this.searchCount = result;
-    //}, error => console.error(error));
-    //http.get<WeatherForecast[]>('/weatherforecast').subscribe(result => {
-    //  this.forecasts = result;
-    //}, error => console.error(error));
+  constructor(private searchResultService: SearchResultCountService) {
   }
-  //Kanske göra till int
-
+  showResult: boolean = false;
   getValue(val: string) {
-    //let result = this.searchResultService.getData(val);
-    //console.warn(result)
-    this.searchResultService.getData(val).subscribe(data => {
-      this.searchResult = data.toString();
-    })
+    if (!!val) {
+      this.searchResultService.getData(val).subscribe(data => {
+        this.searchResult = data.toString();
+        this.showResult = true;
+      })
+    }
   }
-}
 
-
-
-interface WeatherForecast {
-  date: string;
-  temperatureC: number;
-  temperatureF: number;
-  summary: string;
-}
-
-interface SearchResultCount {
-  totalCount: number;
 }
