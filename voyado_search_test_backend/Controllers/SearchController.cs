@@ -18,13 +18,13 @@ namespace voyado_search_test_backend.Controllers
         Int64 totalResults = 0;
 
         //Google
-        string cx = "76e758613b929406e";
+        string googleCustomSearchId = "76e758613b929406e";
         string apiKey = "AIzaSyC9Q8jZYaOn8Yjsj8JjaC2ofpFLCtr9WpM";
 
 
         //Bing
+        string bingCustomSearchId = "135bc5e2-6412-4149-ae9b-7d2859feef93&mkt=sv-SE";
         string bingAccessKey = "69986a31efd147d58de1d2b2a69e7fa5";
-        string uriBase = "https://api.bing.microsoft.com/v7.0/custom/search";
 
         [Route("getResultCount")]
         [HttpGet] 
@@ -33,44 +33,21 @@ namespace voyado_search_test_backend.Controllers
             string[] words = searchParam.Split(' ');
             foreach (var word in words)
             {
-
-                BingWebSearch(word);
                 GoogleWebSearch(word);
-                ////Get Result from Google
-                //var request = WebRequest.Create("https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + word);
-                //request.UseDefaultCredentials = true;
-                //HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                //Stream dataStream = response.GetResponseStream();
-                //StreamReader reader = new StreamReader(dataStream);
-                //string responseString = reader.ReadToEnd();
-                //dynamic jsonData = JsonConvert.DeserializeObject(responseString);
-                //totalResults += (Int64)jsonData.SelectToken("searchInformation.totalResults");
+                BingWebSearch(word);
             }
 
-            
-            //var request = WebRequest.Create("https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchParam);
-            //request.UseDefaultCredentials = true;
-            //HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-            //Stream dataStream = response.GetResponseStream();
-            //StreamReader reader = new StreamReader(dataStream);
-            //string responseString = reader.ReadToEnd();
-            //dynamic jsonData = JsonConvert.DeserializeObject(responseString);
-            //Int64 totalResults = (Int64)jsonData.SelectToken("searchInformation.totalResults");
             return totalResults;
         }
-        // Returns search results with headers.
-        struct SearchResult
-        {
-            public String jsonResult;
-            public Dictionary<String, String> relevantHeaders;
-        }
+
 
         /// <summary>
         /// Makes a request to the Google Search API and returns the total searches per word
         /// </summary>
         private Int64 GoogleWebSearch(string searchQuery)
         {
-            var request = WebRequest.Create("https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + cx + "&q=" + searchQuery);
+            string uriBase = "https://www.googleapis.com/customsearch/v1?key=" + apiKey + "&cx=" + googleCustomSearchId + "&q=" + searchQuery;
+            var request = WebRequest.Create(uriBase);
             request.UseDefaultCredentials = true;
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
             Stream dataStream = response.GetResponseStream();
@@ -86,20 +63,19 @@ namespace voyado_search_test_backend.Controllers
         /// </summary>
         private Int64 BingWebSearch(string searchQuery)
         {
-            string accessKey = "69986a31efd147d58de1d2b2a69e7fa5";
-            string uriBase = "https://api.bing.microsoft.com/v7.0/custom/search?q="+ searchQuery + "&customconfig=135bc5e2-6412-4149-ae9b-7d2859feef93&mkt=sv-SE";
-
+            string uriBase = "https://api.bing.microsoft.com/v7.0/custom/search?q=" + searchQuery + "&customconfig="+ bingCustomSearchId;
+            
             // Construct the search request URI.
             var uriQuery = uriBase + "?q=" + Uri.EscapeDataString(searchQuery);
 
             // Perform request and get a response.
             WebRequest request = HttpWebRequest.Create(uriQuery);
-            request.Headers["Ocp-Apim-Subscription-Key"] = accessKey;
+            request.Headers["Ocp-Apim-Subscription-Key"] = bingAccessKey;
             HttpWebResponse response = (HttpWebResponse)request.GetResponseAsync().Result;
             string json = new StreamReader(response.GetResponseStream()).ReadToEnd();
 
             dynamic jsonData = JsonConvert.DeserializeObject(json);
-            totalResults = (Int64)jsonData.SelectToken("webPages.totalEstimatedMatches");
+            totalResults += (Int64)jsonData.SelectToken("webPages.totalEstimatedMatches");
 
             return totalResults;
         }
