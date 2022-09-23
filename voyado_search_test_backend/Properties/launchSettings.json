@@ -2,6 +2,7 @@
   "profiles": {
     "voyado_search_test_backend": {
       "commandName": "Project",
+      "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
